@@ -1,0 +1,66 @@
+const express = require('express');
+const router = express.Router();
+const Fruit = require('../models/fruit');
+
+// Get a list of fruits from db
+router.get('/fruits', function (req, res, next) {
+    Fruit.find({}).then(function (fruits) {
+        if (fruits.length > 0) {
+            res.send(fruits);
+        } else {
+            res.send('No fruits');
+        }
+    });
+});
+
+// Get one fruit from db
+router.get('/fruits/:id', function (req, res, next) {
+    Fruit.findById(req.params.id).then(function (fruit) {
+        if (fruit) {
+            res.send(fruit);
+        } else {
+            res.status(404).send("Fruit not found");
+        }
+    }).catch(function (err) {
+        res.status(404).send(err.message);
+    });
+});
+
+// Add a new fruit to the database
+router.post('/fruits', function (req, res, next) {
+    // search in db for existing fruit with the requested name
+    Fruit.findOne({ name: req.body.name }).then(function (fruit) {
+        if (fruit) {
+            res.status(409).send('"' + req.body.name + '" already exists');
+        } else {
+            Fruit.create(req.body).then(function (fruit) {
+                res.status(201).send(fruit);
+            }).catch(next);
+        }
+    });
+
+});
+
+// Update a fruit in a database
+router.put('/fruits/:id', function (req, res, next) {
+    Fruit.findByIdAndUpdate({ _id: req.params.id }, req.body, { new: true }).then(function (fruit) {
+        if (fruit) {
+            res.send(fruit);
+        } else {
+            res.status(404).send("Fruit not found");
+        }
+    }).catch(next);
+});
+
+// Delete a fruit from a database
+router.delete('/fruits/:id', function (req, res, next) {
+    Fruit.findByIdAndRemove(req.params.id).then(function (fruit) {
+        if (fruit) {
+            res.status(200).send('Fruit deleted successfully');
+        } else {
+            res.status(404).send("Fruit not found");
+        }
+    }).catch(next);
+});
+
+module.exports = router;
