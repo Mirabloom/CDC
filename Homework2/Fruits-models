@@ -1,0 +1,26 @@
+
+
+const mongoose = require('mongoose');
+var Schema = mongoose.Schema;
+
+// Create fruit Schema & model
+const FruitSchema = new Schema({
+    name: {
+        type: String,
+        required: (true, 'Kindly enter the name of the fruit')
+    },
+    quantity: {
+        type: Number,
+    },
+    unit: {
+        type: [{
+            type: String,
+            enum: ['kg', 'pieces', 'liters']
+        }],
+        default: ['kg']
+    }
+});
+
+const Fruit = mongoose.model('fruit', FruitSchema);
+
+module.exports = Fruit;
